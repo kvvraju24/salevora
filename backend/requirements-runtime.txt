@@ -1,0 +1,5 @@
+# Serving only: training and browser-test packages are deliberately excluded.
+fastapi==0.162.0
+numpy==2.4.6
+pandas==3.1.0
+uvicorn==0.54.0

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "dataset": "Rossmann Store Sales",
+  "history_rows": 1017209,
+  "history_start": "2013-01-01",
+  "history_end": "2015-07-31",
+  "artifacts_generated_at": "2026-10-27T04:56:36.861452+00:00",
+  "source_hashes": {
+    "train.csv": "f6e4597c142d7d909a13d53b68a8e85c00b9a4c7b5ff40adbb37d6829cc1f4cc",
+    "test.csv": "e75f79972de046d88c2fd55da19df627f5ca654aaf418090d4d30c60ea7dbe26",
+    "store.csv": "f56bd124a2849489e6bbb5c000f5fc9640204355e316475c918ae4d089afb344"
+  },
+  "files": {
+    "train.csv.gz": {
+      "bytes": 6913944,
+      "sha256": "6b4f44dabd422d807201dba9e7f0e3116f8800d6cce54ed75a224b51ecb72a56"
+    },
+    "stores.csv.gz": {
+      "bytes": 9077,
+      "sha256": "d387fd7d3ea0072dbc34477287013b108da3c08125a40d988d4c824fb2a77206"
+    },
+    "forecast.csv.gz": {
+      "bytes": 896803,
+      "sha256": "3d279f5c3714fef3d48aaee1c7ec0c248d6a22df1a58c2fc6fdd525b33b2005d"
+    },
+    "validation.csv.gz": {
+      "bytes": 1005753,
+      "sha256": "b45a629560daf7beec81c9b85b5844dbe48166a7a3522211688b86dd517b095e"
+    },
+    "manifest.json.gz": {
+      "bytes": 941,
+      "sha256": "d67de365962f0f85a092de80cc6883a6c2c0e11406a8bdf18d915d553e37b4e7"
+    },
+    "quality.json.gz": {
+      "bytes": 519,
+      "sha256": "6494e8d7e06d8e0b37c7081a441ff247659f16d06f863b2e4cb0a9119f48d895"
+    },
+    "explanations.json.gz": {
+      "bytes": 267220,
+      "sha256": "a656257170ec67a43c9eafe5b5f6df4da2e1630562d414bc76edfaca8ffc8044"
+    }
+  }
+}

@@ -1,0 +1,2 @@
+# Vercel installs this serving-only environment from the backend service root.
+-r requirements-runtime.txt
