@@ -23,7 +23,34 @@ async def lifespan(app):
         fn.cache_clear()
     yield
 
-app = FastAPI(title='Northstar • Sales Intelligence', version='1.0.0', lifespan=lifespan)
+app = FastAPI(title='Northstar • Sales Intelligence', version='1.1.0', lifespan=lifespan)
+
+# Periods offered by the dashboard. Accepting only these keeps the in-process
+# cache effective and stops scripted sweeps over thousands of uncached queries.
+ALLOWED_DAYS = (28, 42, 90, 180)
+
+APP_CSP = ("default-src 'self'; script-src 'self'; "
+           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+           "font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; "
+           "object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'")
+API_CSP = "default-src 'none'; frame-ancestors 'none'"
+
+
+@app.middleware('http')
+async def security_headers(request, call_next):
+    response = await call_next(request)
+    headers = response.headers
+    headers.setdefault('X-Content-Type-Options', 'nosniff')
+    headers.setdefault('Referrer-Policy', 'strict-origin-when-cross-origin')
+    headers.setdefault('X-Frame-Options', 'DENY')
+    headers.setdefault('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+    path = request.url.path
+    if path.startswith('/api/'):
+        headers.setdefault('Content-Security-Policy', API_CSP)
+    elif not path.startswith(('/docs', '/redoc', '/openapi.json')):
+        # Swagger UI and ReDoc load their own CDN assets, so they keep FastAPI's defaults.
+        headers.setdefault('Content-Security-Policy', APP_CSP)
+    return response
 
 
 def records(df):
@@ -35,6 +62,11 @@ def validate_store(store, forecast_only=False):
         raise HTTPException(404, 'Store not found')
     if forecast_only and store and store not in app.state.forecast_ids:
         raise HTTPException(404, 'This store has history but no supplied future schedule. Select one of the 856 forecast stores.')
+
+
+def validate_days(days):
+    if days not in ALLOWED_DAYS:
+        raise HTTPException(422, 'days must be one of 28, 42, 90 or 180')
 
 
 def selected(df, store):
@@ -59,6 +91,7 @@ def meta():
 @app.get('/api/overview')
 @lru_cache(maxsize=64)
 def overview(store: int = Query(0, ge=0), days: int = Query(42, ge=7, le=180)):
+    validate_days(days)
     validate_store(store)
     t = selected(app.state.train, store)
     end = t.Date.max()
@@ -132,6 +165,7 @@ def export_forecast(store: int = Query(0, ge=0), horizon: int = Query(42, ge=7, 
 @app.get('/api/stores')
 @lru_cache(maxsize=64)
 def store_analytics(store: int = Query(0, ge=0), days: int = Query(42, ge=7, le=180)):
+    validate_days(days)
     validate_store(store)
     t = app.state.train
     current = t[t.Date > t.Date.max() - pd.Timedelta(days=days)]

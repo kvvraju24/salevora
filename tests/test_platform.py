@@ -62,9 +62,11 @@ def test_network_forecast_scope_and_no_misleading_confidence_band(client):
     ('/api/overview?store=99999', 404), ('/api/forecast?store=2', 404),
     ('/api/forecast?horizon=100', 422), ('/api/forecast?model=Imaginary', 422),
     ('/api/overview?days=0', 422), ('/api/explain?store=2',404),
+    ('/api/overview?days=30', 422), ('/api/stores?days=179', 422),
 ])
 def test_invalid_or_unavailable_requests(client, path, status):
     assert client.get(path).status_code == status
+
 
 
 def test_scores_reconcile_to_predictions_and_dates(client):

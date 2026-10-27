@@ -17,3 +17,6 @@ backend/artifacts/*
 *.log
 
 .vercel/
+
+# Internal planning notes, kept locally
+docs/project/

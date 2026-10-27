@@ -1,164 +1,169 @@
-# Northstar — Sales & Revenue Forecasting Platform
+# Northstar — Sales Forecasting Dashboard
 
-A full-stack data science portfolio project built from the actual Rossmann Store Sales archive in this folder. React + TypeScript presents six interactive dashboards; FastAPI serves source-backed analytics and forecasts produced by Python, XGBoost, and Ridge regression.
+[![CI](https://github.com/kvvraju24/northstar-sales-forecasting/actions/workflows/ci.yml/badge.svg)](https://github.com/kvvraju24/northstar-sales-forecasting/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
+![XGBoost](https://img.shields.io/badge/XGBoost-3.2-189FDD)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.162-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-green)
 
-![Executive overview](docs/dashboard-desktop.png)
+**End-to-end machine learning project: an XGBoost model forecasts six weeks of daily sales for 856 retail stores, served through a FastAPI backend to an interactive React dashboard with model comparison and SHAP explanations.**
 
-## Run locally
+**[▶ Live demo](https://YOUR-VERCEL-URL.vercel.app)** · **[API docs](https://YOUR-VERCEL-URL.vercel.app/docs)** · **[Model card](docs/model-card.md)**
 
-The repository includes a compressed snapshot of the historical data and trained model outputs. Start the complete production build with:
+![Executive overview dashboard](docs/dashboard-desktop.png)
 
-```bash
-./start.sh
-```
+## Results at a glance
 
-Open **http://127.0.0.1:8000**. API documentation is at **http://127.0.0.1:8000/docs**. Keep the terminal running; press Ctrl+C to stop. If port 8000 is in use, use `PORT=8001 ./start.sh`.
+Trained on **1,017,209 daily records from 1,115 Rossmann stores** (Jan 2013 – Jul 2015) and evaluated on a **42-day chronological holdout of 46,830 store-days** the models never saw during training.
 
-To regenerate forecasts after a data or model change:
-
-```bash
-./start.sh --retrain
-```
-
-### Fresh installation
-
-Use **Python 3.11 or 3.12** and **Node 22.12+** (Node 24 LTS is also suitable). Run `./start.sh` to install serving dependencies, build the frontend, and use the included snapshot. The original archive and training libraries are only needed to retrain.
-
-For training on macOS, XGBoost requires OpenMP: install it with `brew install libomp`. On Debian/Ubuntu, install `libgomp1` if missing. Place your `rossmann-store-sales.zip` in the project root, then run:
-
-```bash
-python3.11 -m venv .venv
-.venv/bin/python -m pip install -r backend/requirements-training.txt
-.venv/bin/python scripts/extract_data.py
-.venv/bin/python -m backend.pipeline
-.venv/bin/python scripts/package_runtime.py
-npm --prefix frontend ci
-./start.sh
-```
-
-The original archive and extracted CSVs stay local and are excluded from Git. The committed runtime snapshot contains the historical columns needed by the dashboard, store metadata, and model outputs.
-
-### Development
-
-Run these in separate terminals from the project root:
-
-```bash
-.venv/bin/uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
-npm --prefix frontend run dev
-```
-
-Open **http://127.0.0.1:5173**. Vite forwards API requests to FastAPI. The local production build uses one process; Vercel routes two services through one origin.
-
-## GitHub and Vercel deployment
-
-The repository includes a compact, read-only serving snapshot so the hosted dashboard can run without the original ZIP or a model-training job during deployment. Original source CSVs, model binaries, virtual environments, and credentials are excluded from Git.
-
-Vercel Services (currently beta) deploys the frontend and backend together:
-
-- `frontend/`: Vite builds the React site into static assets.
-- `backend/`: FastAPI serves analytics from the packaged historical snapshot and precomputed forecasts.
-- `vercel.json`: routes `/api/*`, `/docs`, and `/openapi.json` to FastAPI; the remaining paths go to the frontend.
-
-The runtime installs only the dependencies needed for serving. XGBoost training stays in the reproducible local pipeline. The deployed app presents the same historical results and filters as the local app; it does not retrain when visited.
-
-After updating the source data or retraining, regenerate the runtime snapshot, commit it with the code, and push to the connected GitHub repository:
-
-```bash
-.venv/bin/python scripts/package_runtime.py
-```
-
-Vercel's Git integration can then rebuild the application. Snapshot files include checksums that the API validates at startup.
-
-## Six dashboard pages
-
-| Page | Functionality |
-| --- | --- |
-| Executive Overview | Period/store filters, real revenue and customer counts, previous-period growth, daily/weekly charts, high/low revenue stores, weekday patterns |
-| 6-Week Forecasting | 14/28/42-day horizons, three model choices, daily/cumulative views, individual-store indicative error ranges, CSV export |
-| Store Analytics | Store search, format filter, sorting, pagination, store history, observed promotion associations, revenue per open day |
-| Model Comparison | Chronological holdout scores, actual vs predicted sales, WAPE/RMSPE selection, MAE, RMSE, bias, validation notes |
-| Explainable AI | Exact Tree SHAP global importance and local contributions for each forecast store, explicit log-space additivity |
-| Data Quality & Monitoring | Calendar coverage, missing fields and treatment, duplicates, invalid targets, zero-sales checks, completed pipeline stages and source freshness |
-
-All views include loading/error states. Navigation is responsive, keyboard accessible, and supports hash URLs such as `/#forecast`. CSV exports preserve competition IDs, Store, Date, Open, Promo, prediction, and model name.
-
-## Dataset and honest scope
-
-- **1,017,209** historical rows, **1,115** stores, January 1, 2013 through July 31, 2015.
-- The future schedule contains **856** stores and **48** days. The requested six-week view uses **August 1 through September 11, 2015**.
-- The app uses dataset **sales units**, without assuming a currency absent from the files.
-- There are no SKU-level sales, product prices, or competitors’ sales volumes. Competitor proximity is a store attribute, not a market-share measure.
-- Customer counts are visits, not unique customers. Customers are excluded from model features because future customer counts are unavailable.
-- This is a historical portfolio demonstration, **not a live 2026 sales feed**. Pipeline status describes a completed local run. No scheduled refresh, drift detector, or external BI service is connected.
-
-## Modeling
-
-1. Hold out the final **42 days** (June 20–July 31, 2015; 46,830 store-days).
-2. Fit all target-derived features on history through June 19 only. Historical store, weekday, and promotion means use up to the prior 365 days of open, positive-sales observations in the fitting partition.
-3. Train XGBoost (360 trees, depth 7) and Ridge on `log1p(Sales)` for open, positive-sales days. Calendar, known promotions, holidays, store metadata, and fitting-only historical averages form 21 features.
-4. Compare all three models on the same holdout, with scheduled closures overridden to zero. Predictions are nonnegative.
-5. Refit the two learned models and historical lookup features on all actual history for the supplied future schedule.
-6. Compute exact Tree SHAP with XGBoost’s native `pred_contribs`. Global importance uses 1,000 seeded open future rows; local explanations use each store’s first scheduled open day.
-
-| Model | MAE | RMSE | RMSPE | WAPE |
+| Model | WAPE ↓ | RMSPE ↓ | MAE ↓ | RMSE ↓ |
 | --- | ---: | ---: | ---: | ---: |
-| XGBoost | 545.48 | 843.28 | 13.27% | 9.09% |
-| Ridge | 723.02 | 1,233.69 | 17.15% | 12.04% |
-| Historical baseline | 589.20 | 944.68 | 13.84% | 9.82% |
+| **XGBoost** | **9.09%** | **13.27%** | **545** | **843** |
+| Historical baseline | 9.82% | 13.84% | 589 | 945 |
+| Ridge regression | 12.04% | 17.15% | 723 | 1,234 |
 
-The baseline is the mean of historical sales for the same store, weekday, and promotion flag, falling back to weekday, store, then global means. Full details, definitions, and limitations are in [the model card](docs/model-card.md).
+XGBoost cuts absolute error by **7.4%** and RMSE by **10.8%** against a strong store × weekday × promotion baseline, and beats it on every metric.
+
+## What I built
+
+- **ML pipeline (Python, pandas, scikit-learn, XGBoost).** Leakage-safe chronological validation, 21 engineered features (calendar, promotions, holidays, store format, competition, historical means fitted on training dates only), log-target training, and a full refit for the future schedule.
+- **Explainable AI.** Exact Tree SHAP via XGBoost's `pred_contribs`: global feature importance plus per-store explanations of individual forecasts, with additivity checked by tests.
+- **REST API (FastAPI).** Nine typed, validated, read-only endpoints with interactive OpenAPI docs, cached aggregation over 1M+ rows, CSV forecast export, and security headers.
+- **Dashboard (React 19 + TypeScript + Recharts).** Six responsive pages: executive KPIs, 6-week forecasting, store analytics, model comparison, explainable AI and data-quality monitoring. Keyboard accessible and mobile friendly.
+- **Testing and deployment.** pytest integration tests reconcile every figure to the source CSVs, and Playwright browser tests cover all pages on desktop and mobile. GitHub Actions CI, plus a checksummed data snapshot so the app deploys to Vercel without the training stack.
+
+## Dashboard pages
+
+| Model comparison | Mobile layout |
+| --- | --- |
+| ![Model comparison](docs/models-desktop.png) | ![Mobile layout](docs/dashboard-mobile.png) |
+| **Explainable AI (SHAP)** | **Data quality** |
+| ![SHAP explanations](docs/explain-desktop.png) | ![Data quality](docs/quality-desktop.png) |
+
+| Page | What it shows |
+| --- | --- |
+| Executive Overview | Revenue, customer visits and growth versus the previous period; daily and weekly trends; best and worst stores; weekday pattern |
+| 6-Week Forecasting | 14/28/42-day horizons, choice of three models, daily or cumulative view, per-store error range, CSV export |
+| Store Analytics | Search, filter by format, sort and paginate 1,115 stores; store history; promotion comparison |
+| Model Comparison | Holdout scores, actual-versus-predicted chart, worst-forecast stores, metric definitions |
+| Explainable AI | Global SHAP importance and the drivers behind each store's forecast |
+| Data Quality | Calendar coverage, missing values and how they were treated, duplicates, invalid targets, pipeline provenance |
 
 ## Architecture
 
 ```text
-Rossmann ZIP → CSV validation → chronological train/holdout split
-                              ↓
-                   features → XGBoost / Ridge / baseline
-                              ↓
-              evaluation + full refit + forecasts + Tree SHAP
-                              ↓
-                  local CSV / JSON / model artifacts
-                              ↓
-                      FastAPI analytics endpoints
-                              ↓
-                React + TypeScript + Recharts dashboard
+Kaggle Rossmann CSVs ─► validation ─► chronological train / holdout split
+                                         │
+                       feature engineering (fit on training dates only)
+                                         │
+                 XGBoost  ·  Ridge  ·  historical baseline  ─► holdout metrics
+                                         │
+                 full refit ─► 6-week forecasts ─► Tree SHAP explanations
+                                         │
+              checksummed compressed snapshot (≈ 8.7 MB, committed)
+                                         │
+                FastAPI (read-only, cached)  ─►  React + Recharts dashboard
 ```
 
-The training pipeline is separate from request handling. The API loads immutable source data and precomputed model outputs at startup, and caches common analytics queries. Restart the server after retraining. No database or paid account is needed.
+Training runs offline. The API only reads precomputed results, so the hosted app starts in seconds and needs no ML libraries.
 
-```text
-backend/pipeline.py       Training, validation, prediction, SHAP, quality audit
-backend/app.py            FastAPI analytics and CSV export routes
-backend/runtime.py        Lightweight serving data loader and shared metrics
-backend/runtime_data/     Compressed history and model outputs for deployment
-backend/artifacts/        Generated models, forecasts, metrics, explanations
-frontend/src/             React dashboard and responsive design
-frontend/e2e/             Browser interaction tests
-scripts/extract_data.py   Safe extraction of known dataset members
-scripts/package_runtime.py  Validate and package results for deployment
-start.sh                  Build and serve app + API on one origin
-```
+## Key design decisions
 
-## Verification
+- **Chronological holdout, not a random split.** Random splits leak future information in time series. The final 42 days are held out, and every target-derived feature is fitted only on earlier dates. A test checks this.
+- **WAPE as the headline metric.** It weights errors by sales volume, so a large store's error counts more than a small store's. RMSPE (the Kaggle metric) is reported alongside it.
+- **Log-transformed target.** Sales are right-skewed. Training on `log1p(Sales)` stabilises variance, and predictions are clipped to be non-negative and set to zero for scheduled closures.
+- **A baseline worth beating.** The baseline is a store × weekday × promotion mean, not a naïve constant. XGBoost has to earn its complexity.
+- **Honest uncertainty.** Error ranges are shown only for individual stores. Summing them for the whole network would overstate confidence, because store errors are correlated.
+
+## Run locally
+
+Requires **Python 3.11 or 3.12** and **Node 22.12+**.
 
 ```bash
-.venv/bin/python -m pip install -r backend/requirements-training.txt
-.venv/bin/python -m pytest tests -q
-npm --prefix frontend run build
-# With the development servers running:
-cd frontend
-npx playwright install chromium
-npx playwright test
+git clone https://github.com/kvvraju24/northstar-sales-forecasting.git
+cd northstar-sales-forecasting
+./start.sh            # installs dependencies, builds the UI, serves everything
 ```
 
-Backend integration tests use the original local dataset and training artifacts to independently reconcile sales totals, customer counts, model scores, forecast exports, store coverage, SHAP additivity, and target-feature isolation. Deployment checks verify snapshot parity, startup without training libraries, and export size limits. Browser tests cover all six pages, filter changes, downloads, search/empty states, mobile navigation, layout overflow, and the methodology dialog.
+Open **http://127.0.0.1:8000**. The API docs are at **/docs**. If port 8000 is busy, use `PORT=8001 ./start.sh`.
+
+<details>
+<summary><b>Retrain the models from the original data</b></summary>
+
+Download `rossmann-store-sales.zip` from the [Kaggle competition](https://www.kaggle.com/c/rossmann-store-sales/data) and place it in the project root. On macOS, XGBoost needs OpenMP (`brew install libomp`); on Debian/Ubuntu, install `libgomp1`.
+
+```bash
+python3.11 -m venv .venv
+.venv/bin/python -m pip install -r backend/requirements-training.txt
+.venv/bin/python scripts/extract_data.py      # extracts only the four known CSVs
+.venv/bin/python -m backend.pipeline          # train, evaluate, forecast, explain
+.venv/bin/python scripts/package_runtime.py   # rebuild the checksummed snapshot
+./start.sh
+```
+
+Or run it all in one go with `./start.sh --retrain`.
+</details>
+
+<details>
+<summary><b>Development mode and tests</b></summary>
+
+```bash
+# two terminals
+.venv/bin/uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
+npm --prefix frontend run dev                 # http://127.0.0.1:5173
+
+# tests
+.venv/bin/python -m pytest tests -q           # full suite needs the original data
+npm --prefix frontend run build
+cd frontend && npx playwright install chromium && npx playwright test
+```
+
+The backend tests independently reconcile sales totals, customer counts, model scores, forecast exports, store coverage, SHAP additivity and feature isolation against the source data. CI runs the snapshot-only subset, because the Kaggle archive is not redistributed.
+</details>
+
+## Deployment
+
+`vercel.json` deploys two services behind one origin: the Vite-built frontend, and the FastAPI backend that serves `/api/*` and `/docs`. The backend installs only its serving dependencies and checks the snapshot's SHA-256 checksums at startup, refusing to serve partial or mixed data.
 
 ## API
 
-`GET /api/meta`, `/api/health`, `/api/overview`, `/api/forecast`, `/api/forecast/export`, `/api/stores`, `/api/models`, `/api/explain`, `/api/quality`.
+`GET /api/health` · `/api/meta` · `/api/overview` · `/api/forecast` · `/api/forecast/export` · `/api/stores` · `/api/models` · `/api/explain` · `/api/quality`
 
-`store=0` means the complete relevant cohort. Historical pages support 7–180 days. Forecasts support 7–42 days and `model=XGBoost|Ridge|Baseline`. Forecast requests for historical-only stores return a clear 404. Invalid controls return 422.
+- `store=0` means all stores.
+- Historical pages accept `days` = 28, 42, 90 or 180.
+- Forecasts accept a `horizon` of 7–42 days and `model` = `XGBoost`, `Ridge` or `Baseline`.
+- Invalid input returns 422. Unknown stores, and stores that have history but no forecast schedule, return 404.
 
-## Portfolio use
+## Security
 
-The React website is the deliverable requested in the brief. A methodology dialog, model card, and API documentation are included for demonstrations. The source repository is private; the hosted dashboard presents historical analytics and forecasts. The original archive and training model binaries are excluded from Git. No Power BI publication or connection is required.
+The API is read-only and same-origin, with typed and bounded inputs, and there are no secrets in the repository. Responses carry a Content-Security-Policy, `X-Frame-Options`, `nosniff`, `Referrer-Policy` and `Permissions-Policy`. Historical queries only accept the periods the UI offers, which keeps the cache effective.
+
+## Scope and limitations
+
+- This is a **historical** dataset (2013–2015), not a live sales feed. Forecasts cover 1 Aug – 11 Sep 2015, the period of Kaggle's future schedule.
+- Values are dataset sales units; the data has no currency, SKU, price or competitor-sales information.
+- Customer counts are visits, not unique customers. They are excluded from the model's features, because future visits are unknown at forecast time.
+- See the [model card](docs/model-card.md) for full definitions and limitations, and the [verification notes](docs/verification.md) for the test log.
+
+## Project structure
+
+```text
+backend/pipeline.py         training, validation, forecasting, SHAP, data-quality audit
+backend/app.py              FastAPI routes, validation, security headers
+backend/runtime.py          lightweight snapshot loader and shared metrics
+backend/runtime_data/       compressed, checksummed serving snapshot
+frontend/src/               React + TypeScript dashboard
+frontend/e2e/               Playwright browser tests
+tests/                      pytest integration and deployment tests
+scripts/                    safe data extraction and snapshot packaging
+```
+
+## Data and licence
+
+Data: [Rossmann Store Sales](https://www.kaggle.com/c/rossmann-store-sales) (Kaggle), used for non-commercial demonstration. The original archive is not redistributed. Code: [MIT](LICENSE).
+
+---
+
+**Koneti Vishnuvardhan Raju** · [GitHub](https://github.com/kvvraju24) · [LinkedIn](https://www.linkedin.com/in/YOUR-LINKEDIN) · open to Data Science / ML roles

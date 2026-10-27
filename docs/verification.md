@@ -1,4 +1,4 @@
-# Verification — 27 October 2026
+# Verification
 
 The user flow is: React dashboard control → FastAPI endpoint → Rossmann CSV/model artifacts → JSON or CSV response → interactive visualization.
 
@@ -16,6 +16,6 @@ The user flow is: React dashboard control → FastAPI endpoint → Rossmann CSV/
 
 The four browser test scenarios passed (three in the initial completed run, forecast after making its horizon selector label explicit). Source-CSV totals, customer counts, closed-day behavior, model metric arithmetic, SHAP additivity, and target-feature isolation were independently checked by the backend tests.
 
-A visual check revealed that Recharts' daily-to-cumulative interpolation briefly displays the previous shape against the new axis. Forecast series interpolation was disabled so the new curve appears immediately; the completed cumulative curve was then verified in the Codex browser against the production build. Page-entry transitions remain enabled and respect reduced-motion preferences.
+A visual check revealed that Recharts' daily-to-cumulative interpolation briefly displays the previous shape against the new axis. Forecast series interpolation was disabled so the new curve appears immediately; the completed cumulative curve was then re-checked in the browser against the production build. Page-entry transitions remain enabled and respect reduced-motion preferences.
 
-Screenshots in this folder document the locally rendered dashboard. The server is bound to the loopback interface; the project has not been published externally. Screenshots show a 2015 historical dataset, not current trading activity.
+Screenshots in this folder document the rendered dashboard. They show a 2015 historical dataset, not current trading activity.

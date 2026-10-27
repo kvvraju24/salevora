@@ -78,3 +78,21 @@ def test_incomplete_snapshot_fails_at_startup(tmp_path, monkeypatch):
     monkeypatch.setenv('NORTHSTAR_DATA_MODE', 'snapshot')
     with pytest.raises(RuntimeError, match='incomplete or corrupt'):
         runtime.read_serving_data()
+
+
+def test_security_headers_and_supported_periods(monkeypatch):
+    # Runs from the committed snapshot alone, so CI can check it without the original archive.
+    monkeypatch.setenv('NORTHSTAR_DATA_MODE', 'snapshot')
+    with TestClient(app) as client:
+        api = client.get('/api/health')
+        assert api.status_code == 200
+        assert api.headers['x-content-type-options'] == 'nosniff'
+        assert api.headers['x-frame-options'] == 'DENY'
+        assert "default-src 'none'" in api.headers['content-security-policy']
+        docs = client.get('/docs')
+        assert docs.status_code == 200
+        assert 'content-security-policy' not in docs.headers  # Swagger UI loads CDN assets.
+        for days in (28, 42, 90, 180):
+            assert client.get(f'/api/overview?days={days}').status_code == 200
+        assert client.get('/api/overview?days=30').status_code == 422
+        assert client.get('/api/stores?days=179').status_code == 422
