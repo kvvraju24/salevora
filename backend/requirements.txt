@@ -1,2 +1,6 @@
 # Vercel installs this serving-only environment from the backend service root.
--r requirements-runtime.txt
+# Keep these pins identical to requirements-runtime.txt (Vercel does not follow -r includes).
+fastapi==0.162.0
+numpy==2.4.6
+pandas==3.1.0
+uvicorn==0.54.0
