@@ -45,6 +45,8 @@ jobs:
   e2e:
     name: Browser tests (Playwright)
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       NORTHSTAR_DATA_MODE: snapshot
       E2E_BASE_URL: http://127.0.0.1:8000
@@ -79,11 +81,15 @@ jobs:
         env:
           SCREENSHOTS: '1'
         run: npx playwright test screenshots.spec.ts
-      - uses: actions/upload-artifact@v4
+      - name: Publish screenshots to the screenshots branch
         if: ${{ inputs.screenshots }}
-        with:
-          name: screenshots
-          path: docs/screenshots/
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898293+github-actions[bot]@users.noreply.github.com"
+          git checkout -b screenshots
+          git add -f docs/screenshots
+          git commit -m "Capture portfolio screenshots"
+          git push -f origin screenshots
       - name: Server log
         if: failure()
         run: cat server.log
