@@ -41,12 +41,12 @@ def metrics(actual, predicted):
 def read_serving_data():
     """Prefer local source files; use the packaged snapshot on a deployment.
 
-    NORTHSTAR_DATA_MODE=snapshot explicitly exercises the deployed data path.
+    SALEVORA_DATA_MODE=snapshot explicitly exercises the deployed data path.
     A snapshot includes every historical store-day, preserving all API filters.
     """
-    mode = os.environ.get('NORTHSTAR_DATA_MODE', 'auto')
+    mode = os.environ.get('SALEVORA_DATA_MODE', 'auto')
     if mode not in {'auto', 'source', 'snapshot'}:
-        raise RuntimeError('NORTHSTAR_DATA_MODE must be auto, source, or snapshot')
+        raise RuntimeError('SALEVORA_DATA_MODE must be auto, source, or snapshot')
     source_files = [DATA / name for name in ('train.csv', 'test.csv', 'store.csv')]
     artifact_files = [ART / name for name in ('forecast.csv', 'validation.csv', 'manifest.json', 'quality.json', 'explanations.json')]
     source_available = all(path.exists() for path in source_files + artifact_files)

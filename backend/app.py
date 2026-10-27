@@ -23,7 +23,7 @@ async def lifespan(app):
         fn.cache_clear()
     yield
 
-app = FastAPI(title='Northstar • Sales Intelligence', version='1.1.0', lifespan=lifespan)
+app = FastAPI(title='Salevora • Sales & Revenue Forecasting', version='1.1.0', lifespan=lifespan)
 
 # Periods offered by the dashboard. Accepting only these keeps the in-process
 # cache effective and stops scripted sweeps over thousands of uncached queries.
@@ -159,7 +159,7 @@ def forecast(store: int = Query(0, ge=0), horizon: int = Query(42, ge=7, le=42),
 def export_forecast(store: int = Query(0, ge=0), horizon: int = Query(42, ge=7, le=42), model: Literal['XGBoost', 'Ridge', 'Baseline'] = 'XGBoost'):
     df = forecast_rows(store, horizon)[['Id', 'Store', 'Date', 'Open', 'Promo', model]].rename(columns={model: 'PredictedSales'})
     df['Model'] = model
-    return Response(df.to_csv(index=False), media_type='text/csv', headers={'Content-Disposition': f'attachment; filename="northstar-{model.lower()}-{horizon}d.csv"'})
+    return Response(df.to_csv(index=False), media_type='text/csv', headers={'Content-Disposition': f'attachment; filename="salevora-{model.lower()}-{horizon}d.csv"'})
 
 
 @app.get('/api/stores')

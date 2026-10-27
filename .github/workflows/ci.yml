@@ -48,7 +48,7 @@ jobs:
     permissions:
       contents: write
     env:
-      NORTHSTAR_DATA_MODE: snapshot
+      SALEVORA_DATA_MODE: snapshot
       E2E_BASE_URL: http://127.0.0.1:8000
     steps:
       - uses: actions/checkout@v4

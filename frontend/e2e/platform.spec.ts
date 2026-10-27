@@ -28,7 +28,7 @@ test('forecast filters, cumulative view and CSV export work',async({page})=>{
   const downloadPromise=page.waitForEvent('download');
   await page.getByRole('link',{name:'Export forecast'}).click();
   const download=await downloadPromise;
-  expect(download.suggestedFilename()).toBe('northstar-ridge-14d.csv');
+  expect(download.suggestedFilename()).toBe('salevora-ridge-14d.csv');
   await page.screenshot({path:'test-results/forecast-desktop.png',fullPage:true});
 });
 

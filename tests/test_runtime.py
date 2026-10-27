@@ -20,10 +20,10 @@ def test_packaged_snapshot_preserves_dashboard_results(monkeypatch):
         *[f'/api/forecast?horizon=42&model={model}' for model in ('XGBoost', 'Ridge', 'Baseline')],
         '/api/forecast?store=1&horizon=42',
     ]
-    monkeypatch.setenv('NORTHSTAR_DATA_MODE', 'source')
+    monkeypatch.setenv('SALEVORA_DATA_MODE', 'source')
     with TestClient(app) as client:
         expected = {path: client.get(path).json() for path in paths}
-    monkeypatch.setenv('NORTHSTAR_DATA_MODE', 'snapshot')
+    monkeypatch.setenv('SALEVORA_DATA_MODE', 'snapshot')
     with TestClient(app) as client:
         for path in paths:
             response = client.get(path)
@@ -61,7 +61,7 @@ with TestClient(app) as client:
 print('Standalone backend passed with training imports blocked')
 '''
     environment = dict(os.environ)
-    environment.pop('NORTHSTAR_DATA_MODE', None)
+    environment.pop('SALEVORA_DATA_MODE', None)
     environment.pop('PYTHONPATH', None)
     result = subprocess.run([sys.executable, '-c', script], cwd=tmp_path, env=environment,
                             capture_output=True, text=True, timeout=60)
@@ -75,14 +75,14 @@ def test_incomplete_snapshot_fails_at_startup(tmp_path, monkeypatch):
     # A partial deployment must not serve a misleading mix of dataset versions.
     shutil.copy2(RUNTIME / 'snapshot.json', tmp_path / 'snapshot.json')
     monkeypatch.setattr(runtime, 'RUNTIME', tmp_path)
-    monkeypatch.setenv('NORTHSTAR_DATA_MODE', 'snapshot')
+    monkeypatch.setenv('SALEVORA_DATA_MODE', 'snapshot')
     with pytest.raises(RuntimeError, match='incomplete or corrupt'):
         runtime.read_serving_data()
 
 
 def test_security_headers_and_supported_periods(monkeypatch):
     # Runs from the committed snapshot alone, so CI can check it without the original archive.
-    monkeypatch.setenv('NORTHSTAR_DATA_MODE', 'snapshot')
+    monkeypatch.setenv('SALEVORA_DATA_MODE', 'snapshot')
     with TestClient(app) as client:
         api = client.get('/api/health')
         assert api.status_code == 200

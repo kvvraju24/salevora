@@ -1,6 +1,6 @@
-# Northstar — Sales Forecasting Dashboard
+# Salevora — Sales & Revenue Forecasting
 
-[![CI](https://github.com/kvvraju24/northstar-sales-forecasting/actions/workflows/ci.yml/badge.svg)](https://github.com/kvvraju24/northstar-sales-forecasting/actions/workflows/ci.yml)
+[![CI](https://github.com/kvvraju24/salevora/actions/workflows/ci.yml/badge.svg)](https://github.com/kvvraju24/salevora/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
 ![XGBoost](https://img.shields.io/badge/XGBoost-3.2-189FDD)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.162-009688?logo=fastapi&logoColor=white)
@@ -10,7 +10,7 @@
 
 **End-to-end machine learning project: an XGBoost model forecasts six weeks of daily sales for 856 retail stores, served through a FastAPI backend to an interactive React dashboard with model comparison and SHAP explanations.**
 
-**[▶ Live demo](https://northstar-sales-forecasting.vercel.app)** · **[API docs](https://northstar-sales-forecasting.vercel.app/docs)** · **[Model card](docs/model-card.md)**
+**[▶ Live demo](https://salevora.vercel.app)** · **[API docs](https://salevora.vercel.app/docs)** · **[Model card](docs/model-card.md)**
 
 ![Executive overview dashboard](docs/dashboard-desktop.png)
 
@@ -82,8 +82,8 @@ Training runs offline. The API only reads precomputed results, so the hosted app
 Requires **Python 3.11 or 3.12** and **Node 22.12+**.
 
 ```bash
-git clone https://github.com/kvvraju24/northstar-sales-forecasting.git
-cd northstar-sales-forecasting
+git clone https://github.com/kvvraju24/salevora.git
+cd salevora
 ./start.sh            # installs dependencies, builds the UI, serves everything
 ```
 

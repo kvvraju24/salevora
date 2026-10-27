@@ -1,4 +1,4 @@
-# Northstar model card
+# Salevora model card
 
 ## Intended use
 
