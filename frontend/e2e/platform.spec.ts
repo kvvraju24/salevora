@@ -6,7 +6,7 @@ test('all six dashboard pages load without browser errors', async ({ page }) => 
   await page.goto('/');
   await expect(page.getByText('Revenue performance',{exact:true})).toBeVisible();
   await expect(page.getByText('Total revenue',{exact:true})).toBeVisible();
-  await page.screenshot({path:'../docs/dashboard-desktop.png',fullPage:true});
+  await page.screenshot({path:'test-results/dashboard-desktop.png',fullPage:true});
   const routes=[['6-Week Forecasting','Daily revenue forecast'],['Store Analytics','Explore your stores'],['Model Comparison','Predictions vs. reality'],['Explainable AI','What drives the model?'],['Data Quality','Missing values & treatment']];
   for(const [label,heading] of routes){
     await page.getByRole('navigation').getByRole('button',{name:label,exact:false}).click();
@@ -29,7 +29,7 @@ test('forecast filters, cumulative view and CSV export work',async({page})=>{
   await page.getByRole('link',{name:'Export forecast'}).click();
   const download=await downloadPromise;
   expect(download.suggestedFilename()).toBe('northstar-ridge-14d.csv');
-  await page.screenshot({path:'../docs/forecast-desktop.png',fullPage:true});
+  await page.screenshot({path:'test-results/forecast-desktop.png',fullPage:true});
 });
 
 test('history filter and store search apply to real data',async({page})=>{
@@ -53,7 +53,7 @@ test('mobile navigation, layout and methodology dialog work',async({page})=>{
   await page.goto('/');
   await expect(page.getByText('Revenue performance',{exact:true})).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
-  await page.screenshot({path:'../docs/dashboard-mobile.png',fullPage:true});
+  await page.screenshot({path:'test-results/dashboard-mobile.png',fullPage:true});
   await page.getByRole('button',{name:'Open navigation',exact:true}).click();
   await page.getByRole('navigation').getByRole('button',{name:'Explainable AI'}).click();
   await expect(page.getByText('What drives the model?',{exact:true})).toBeVisible();
