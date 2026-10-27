@@ -10,7 +10,7 @@
 
 **End-to-end machine learning project: an XGBoost model forecasts six weeks of daily sales for 856 retail stores, served through a FastAPI backend to an interactive React dashboard with model comparison and SHAP explanations.**
 
-**[▶ Live demo](https://YOUR-VERCEL-URL.vercel.app)** · **[API docs](https://YOUR-VERCEL-URL.vercel.app/docs)** · **[Model card](docs/model-card.md)**
+**[▶ Live demo](https://northstar-sales-forecasting.vercel.app)** · **[API docs](https://northstar-sales-forecasting.vercel.app/docs)** · **[Model card](docs/model-card.md)**
 
 ![Executive overview dashboard](docs/dashboard-desktop.png)
 
@@ -166,4 +166,4 @@ Data: [Rossmann Store Sales](https://www.kaggle.com/c/rossmann-store-sales) (Kag
 
 ---
 
-**Koneti Vishnuvardhan Raju** · [GitHub](https://github.com/kvvraju24) · [LinkedIn](https://www.linkedin.com/in/YOUR-LINKEDIN) · open to Data Science / ML roles
+**Koneti Vishnuvardhan Raju** · [GitHub](https://github.com/kvvraju24) · open to Data Science / ML roles
