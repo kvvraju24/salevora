@@ -10,7 +10,7 @@
 
 **End-to-end machine learning project: an XGBoost model forecasts six weeks of daily sales for 856 retail stores, served through a FastAPI backend to an interactive React dashboard with model comparison and SHAP explanations.**
 
-**[▶ Live demo](https://salevora.vercel.app)** · **[API docs](https://salevora.vercel.app/docs)** · **[Model card](docs/model-card.md)**
+**[▶ Live demo](https://salevora-forecasting.vercel.app)** · **[API docs](https://salevora-forecasting.vercel.app/docs)** · **[Model card](docs/model-card.md)**
 
 ![Executive overview dashboard](docs/dashboard-desktop.png)
 
