@@ -12,7 +12,7 @@
 
 **[▶ Live demo](https://salevora-forecasting.vercel.app)** · **[API docs](https://salevora-forecasting.vercel.app/docs)** · **[Model card](docs/model-card.md)**
 
-![Executive overview dashboard](docs/dashboard-desktop.png)
+![Salevora executive overview dashboard](docs/screenshots/01-executive-overview.png)
 
 ## Results at a glance
 
@@ -36,11 +36,13 @@ XGBoost cuts absolute error by **7.4%** and RMSE by **10.8%** against a strong s
 
 ## Dashboard pages
 
-| Model comparison | Mobile layout |
+| 6-week forecast | Model comparison |
 | --- | --- |
-| ![Model comparison](docs/models-desktop.png) | ![Mobile layout](docs/dashboard-mobile.png) |
-| **Explainable AI (SHAP)** | **Data quality** |
-| ![SHAP explanations](docs/explain-desktop.png) | ![Data quality](docs/quality-desktop.png) |
+| ![Six-week forecast](docs/screenshots/02-six-week-forecast.png) | ![Model comparison](docs/screenshots/04-model-comparison.png) |
+| **Explainable AI (SHAP)** | **Store analytics** |
+| ![SHAP explanations](docs/screenshots/05-explainable-ai.png) | ![Store analytics](docs/screenshots/03-store-analytics.png) |
+| **Data quality** | **Mobile layout** |
+| ![Data quality](docs/screenshots/06-data-quality.png) | <img src="docs/screenshots/07-mobile.png" alt="Mobile layout" width="260"> |
 
 | Page | What it shows |
 | --- | --- |
